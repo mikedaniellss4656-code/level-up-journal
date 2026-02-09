@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22' # MUDANÇA CRÍTICA: Capacitor 8 exige Node 22+
           cache: 'npm'
 
       - name: Setup Java
@@ -29,12 +29,15 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install dependencies
-        run: npm ci
+        # MUDANÇA CRÍTICA: 'npm ci' vai falhar sempre com seu lockfile quebrado.
+        # 'npm install' conserta isso na marra.
+        run: npm install --legacy-peer-deps
 
       - name: Build web app
         run: npm run build
 
       - name: Add Android platform
+        # O '|| true' impede que o build pare se a plataforma já existir
         run: npx cap add android || true
 
       - name: Sync Capacitor
